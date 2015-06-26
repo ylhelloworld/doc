@@ -1,0 +1,107 @@
+
+
+----------------------Manage
+START SERVER  E:\mongodb\mongodb-win32-x86_64-2.0.6\bin>mongod?--dbpath?E:\mongoddata?--port?27777?--logpath?E:\mongodlog\log1.log?
+SERATER STATE C:\mongodb\mongostat
+              http://localhost:port+10 
+
+
+-----------------MapRedue Fucntion
+db.user.count({"name":"tim"});??
+db.user.distinct("name");?
+db.runCommand({  "group"?:? {???"ns"?:?"vegetableprice",??
+                                    "key"?:?{"name"?:?true},??
+                                   ?"initial"?:?{"time"?:?0},??
+                            ?       "$reduce"?:?function(doc,?prev)?{?
+                         ?????????         ?if(doc.time?>?prev.time)?{??
+                                 ?????? ?        prev.time?=?doc.time;?
+                                       ?         prev.price?=?doc.price;??
+                                       }??
+                               }?
+   }});??
+
+
+-----------------MapRedue
+map?=?function(){ 
+         ?for(var?key?in?this){
+                   emit(key,?{"count"?:?1});?
+          }
+};??
+
+?reduce?=?function(key,?emits){
+                ?var?total?=?0;??
+                 for(var?i?in?emits)?{?
+                     total?+=?emits[i].count;?????
+                 ?}??
+                ?return?{"count"?:?total};?
+     ?};??
+ result=?db.runCommand({"mapreduce"?:?"testcol",?"map"?:?map,?"reduce"?:?reduce,?"out"?:?"testcolColumns"});
+
+
+-------------------DataBase Command
+db.runCommand({"drop"?:?"test"});
+db.runCommand({"distinct" : Collection_Name, "key" : Key, "query" : document});
+
+
+-------------------Fix Collection
+db.createCollection("myFixedColl",?{"capped"?:?true,?"size"?:?100000,??...?"max"?:?100}?);??
+
+
+------------------GridFS 
+E:\mongodb\mongodb-win32-x86_64-2.0.6\bin>mongofiles?put?E:\mongodb\mongofiles\file1.txt??connected?to:?127.0.0.1??
+E:\mongodb\mongodb-win32-x86_64-2.0.6\bin>mongofiles?list
+E:\mongodb\mongodb-win32-x86_64-2.0.6\bin>mongofiles?get?E:\mongodb\mongofiles\file1.txt??
+E:\mongodb\mongodb-win32-x86_64-2.0.6\bin>mongofiles?search?file1??
+E:\mongodb\mongodb-win32-x86_64-2.0.6\bin>mongofiles?delete?E:\mongodb\mongofiles\file1.txt??
+  
+E:\mongodb\mongodb-win32-x86_64-2.0.6\bin>mongofiles?--local??E:\mongodb\mongofiles\file1.txt?put?file1.txt
+E:\mongodb\mongodb-win32-x86_64-2.0.6\bin>mongofiles?--local?D:\test\file2.txt?get?file1.txt?
+db.fs.files.find();?
+               
+
+----------------Server Reference
+var?note?=?db.notes.findOne({"_id":"001"});?? 
+printjson(db[note.references.$ref].findOne({"_id":note.references.$id}));??
+
+
+----------------------Back Up
+Lock：db.runCommand({"fsync"?:?1,?"lock"?:?1});??
+Unlock：db.$cmd.sys.unlock.findOne();?
+Check：db.currentOp();
+Back up：mongodump?  -d?mylearndb?-o?E:\mongobak\27017
+            mongorestore?-d?mybakdb?--drop?E:\mongobak\27017\mylearndb?
+
+
+--------------------Master Slave Copy
+Master：E:\mongodb\mongodb-win32-x86_64-2.0.6\bin>mongod?--dbpath?E:\master\mongodata?--logpath?E:\master\mongolog\log.txt?--port?10000?--master
+Slave：  E:\mongodb\mongodb-win32-x86_64-2.0.6\bin>mongod?--dbpath?E:\slave1\mongodata?--logpath?E:\slave1\mongolog\log.txt?--port?10001?--slave?--source?local??host:10000?
+OP：db.oplog.$main.find().sort({"$natural":-1});??
+
+
+--------------------副本集
+ C:\Documents?and?Settings\liuxjd>mongod?--dbpath?e:\mdbserver1?--port?10000?--lo??gpath?e:\mdblog1\log.log?--replSet?yy/localhost:10001??
+ C:\Documents?and?Settings\liuxjd>mongod?--dbpath?e:\mdbserver2?--port?10001?--lo??gpath?e:\mdblog2\log.log?--replSet?yy/localhost:10000??
+               
+
+-------------------分片
+??配置服?器  C:\>mongod?--dbpath?e:\mdbconfig?--logpath?e:\mdbconfiglog\log.log?--port?20000??
+??mongos路由服?  C:\>mongos?--port?30000?--configdb?localhost:20000?? 
+
+?接mongos服?并添加分片系?中  C:\>mongod?--dbpath?e:\mdbshard1?--logpath?e:\mdblog1\log.log?--port?10001??
+                                                              mongo?localhost:30000/admin?
+                                                            ?db.runCommand({"addshard"?:?"localhost:10001",?"allowLocal"?:true});? ? 
+
+切分?据    mongo?localhost:30000/admin?
+                    db.runCommand({"enablesharding"?:?"mydb"});??
+                    b.runCommand({"shardcollection"?:?"mydb.users",?"key"?:?{"name"?:?1}});?? 
+
+查看分片信息(配置服?器) db.shards.find();??      
+
+查看?信息(配置服?器) db.chunks.find();??
+
+分片?? (配置服?器) db.printShardingStatus();??
+
+?除分片db.runCommand({"removeshard"?:?"localhost:10001"});?
+
+------------------Other Script
+load('summary.js')  Execute Script
