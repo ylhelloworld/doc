@@ -1,0 +1,70 @@
+INSTALL
+--------------------------------------------------
+gem install sqlite --no-ri --no-rdoc
+gem install rails --no-ri --no-rdoc
+rails -v
+
+CREATE WEBSIT
+-------------------------------------------------- 
+rails new demo
+rails server
+    
+
+Create CURD
+-------------------------------------------------
+rails generate scaffold person name:string bio:text birthday:date
+
+
+Create Controller
+--------------------------------------------------
+rails generate controller welcome
+bundle exec rake db:migrate
+
+Create Model
+-------------------------------------------------
+rails generate model name:string description:text is_public:boolean capacity:integer
+bundle exec rake db:migrate
+
+Create Migration
+-------------------------------------------------
+rails generate megiration add_status_to_events
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

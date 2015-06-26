@@ -1,0 +1,178 @@
+----------------------------------------------
+Controlling the Target
+-----------------------------------------------
+.restart  ->restart target application
+g         ->go
+gc        ->go from condtion breakpoint
+gh        ->go with exception handle
+gn        ->go with exception not handle
+gu        ->step out
+p         ->step over(F10)
+pa        ->step to address
+pc        ->step to next call
+pct       ->step to next call on return
+ph        -> step to next branching instruction
+pt        ->step to next return
+t         ->trace/step into(F11)
+ta        ->trace to address
+tb        ->trace to next branck
+tc        ->trace to next call
+tct       ->trace to next call or return
+th        ->trace to next braching instruction
+tt        ->trace to next return
+wt        ->trace and watch data
+
+----------------------------------------------
+Using Breakpoints
+----------------------------------------------
+bl      ->breakpoint List
+bp      ->set breakpoint
+bu      ->set unresolved breakpoint
+bm      ->set symbol breakpoint
+ba      ->break on access
+bc      ->breakpoints clear
+bd      ->breakpoint disable
+be      ->breakpoint enable
+br      ->breakpoint renumber
+----------------------------------------------
+Readomg amd Writing Memory
+----------------------------------------------
+1,Accessing Memory by Virtual address
+d* Display Memory
+da ->ascii characters
+db ->byte values and asccii characters
+dc ->double-word value(4 bytes) and ascii characters
+dd ->double-word value(4 bytes)
+dD ->double-precison floating-point number(8 bytes)
+dp ->pointer-size values
+dq ->quad-word values(8 bytes)
+du ->unicode characters
+dw ->word vaues (2 bytes)
+dW ->Word values(2 bytes) and ascii characters
+dyb->binary values and byte values
+dyd->binary values and double-word values(4 bytes)
+
+e* Enter Values
+ea ->ascii string
+eb ->byte values
+ed ->double-word values(4 bytes)
+eD ->double-precision floating-point numbers(8 bytes)
+ef ->single-precison floating-point number(4 bytes)
+ep ->pointer-sized values
+eq ->8 bytes
+eu ->unicode string
+ew ->word values
+eza->null-erminated ascii string
+ezu->null-terminated unicode string
+
+dt        Display Type
+ds/dS     DisplayString
+dl        Display Linked List
+d*s       Display words and symbols
+!address  Display information
+m         Move Memory
+f         Fill memory
+c         Compare memory
+s         Search Memory
+.holdmem  Hod and compare memory
+
+
+2,Accesing memory by physical address
+!db !dc !dd !dp !du !dw
+!eb !ed
+fp->Fill Physical Memory
+!search 
+
+3,Accessing Global Variables
+?(Evaluate Expression)
+
+4,Accessing Local Variables
+dv ->display local variables
+!for each local
+
+----------------------------------------------
+Reading and Writing Register and Flags
+----------------------------------------------
+r->Registers
+example: r eax=0x000000FF
+
+----------------------------------------------
+View the Call Stack
+----------------------------------------------
+
+k ->display stack backtrace
+kb->display stack backtrace and display the first three parameters that whree passed to the function
+kp->display stack backtrace and display a full listing of the parameters that where passed to each function
+kv->display stack backtrace and display addtional frame pointer omission(FPO) information
+kd->displays the raw stack data without any formatting
+
+----------------------------------------------
+Debugging in Assemble Mode
+----------------------------------------------
+u   ->   Unassemble  disassembles and displays a specified section of machine language
+uf  ->   Unassemble Function,disasembles and displays a function
+.adm ->Change disassemble options
+#   ->search for disassembly pattern
+a ->assemble take assemble instruction and translate them tinto binary machine code
+
+
+----------------------------------------------
+Debugging in Source Mode
+----------------------------------------------
+.lines enableds or disbles support for source-line information
+l+/l- set the source line options that control source display and program stepping options
+
+
+
+----------------------------------------------
+Debugging BIOS Code
+----------------------------------------------
+ux Unassemble x86 BOIS
+ur UNasseble Real Mode BIOS
+
+----------------------------------------------
+Ending the Debugging Session
+----------------------------------------------
+quit_lock set a password to prevent you from accidentlly ending the debugging session
+q ->quit
+.kill kill proces
+.detach detach from process
+qd quit and detach
+.abandon abandon process
+
+
+----------------------------------------------
+Control Processes and Threads
+----------------------------------------------
+|  process status
+~  thread status
+|s set current process
+~s set current thread
+~n suspend thread
+~m resume thread
+~f freeze thread
+~u unfreeze thread
+
+.tlist list process ids
+.attach attach to process  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
