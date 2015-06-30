@@ -1,0 +1,28 @@
+XMLHttpRequest
+---------------------
+var xmlHttp;
+function createXMLHttpRequest(){
+     if(window.ActiveXObject){
+      xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");
+   }
+   else if(window.XMLHttpRequest){
+      xmlHttp = new XMLHttpRequest();
+   }
+}
+
+function AddNumber(){
+  createXMLHttpRequest();
+  var url= "AddHandler.ashx?num1="+document.getElementById("num1").value+"&num2="+document.getElementById("num2").value;
+  xmlHttp.open("GET",url,true);
+  xmlHttp.onreadystatechange=ShowResult;
+  xmlHttp.send(null);
+}
+
+function ShowResult(){
+   if(xmlHttp.readyState==4){
+      if(xmlHttp.status==200){
+          document.getElementById("sum").value=xmlHttp.responseText;
+      }
+   }
+}
+---------------------
