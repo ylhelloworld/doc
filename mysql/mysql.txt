@@ -1,0 +1,41 @@
+------------------------
+T-SQL語句
+------------------------
+SELECT[ALL|DISTINCT|DISTINCTROW|TOP]
+{*|talbe.*|[table.]field1[AS alias1][,[table.]field2[AS alias2][,…]]}
+FROM tableexpression[,…][IN externaldatabase]
+[WHERE…]
+[GROUP BY…]
+[HAVING…]
+[ORDER BY…]
+[WITH OWNERACCESS OPTION]
+
+select * from MyClass;
+select * from MyClass order by id limit 0,2;
+select * from MyClass limit 0,2;
+select TOP 5 * from MyClass;
+
+insert into MyClass values(1,'Tom',96.45),(2,'Joan',82.99), (2,'Wang', 96.59);
+delete from MyClass where id=1;
+update article set content=concat('　　',content);
+
+
+------------------------
+C# 連接MySQL
+------------------------
+1,使用Mysql.Data.dll
+
+using MySql.Data.MySqlClient;
+string str_con= "database=onepc;Password=;User ID=root;server=192.168.1.168";
+MySqlConnection con=new MySqlConnection(str_con);
+
+2，使用ODBC
+using Microsoft.Data.Odbc;
+string str_con= "DRIVER={MySQL ODBC 3.51 Driver};" +
+                "SERVER=localhost;" +
+                "DATABASE=inv;" +
+                "UID=root;" +
+                "PASSWORD=831025;" +
+                "OPTION=3";
+OdbcConnection con=new OdbcConnection(str_con);
+
