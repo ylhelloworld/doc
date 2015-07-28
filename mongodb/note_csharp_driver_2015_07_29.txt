@@ -1,0 +1,222 @@
+1,connection to MongoDB
+---------------------------------------------------------
+using MongoDB.Bson;
+using MongoDB.Driver;
+
+protected static IMongoClient _client;
+protected static IMongoDatabase _database;
+
+_client = new MongoClient();
+_database = _client.GetDatabase("test");
+---------------------------------------------------------
+
+
+
+
+
+2,insert data to MongoDB
+---------------------------------------------------------
+using System;
+using System.Threading.Tasks;
+using MongoDB.Bson;
+
+var document = new BsonDocument
+{
+    { "address" , new BsonDocument
+        {
+            { "street", "2 Avenue" },
+            { "zipcode", "10075" },
+            { "building", "1480" },
+            { "coord", new BsonArray { 73.9557413, 40.7720266 } }
+        }
+    },
+    { "borough", "Manhattan" },
+    { "cuisine", "Italian" },
+    { "grades", new BsonArray
+        {
+            new BsonDocument
+            {
+                { "date", new DateTime(2014, 10, 1, 0, 0, 0, DateTimeKind.Utc) },
+                { "grade", "A" },
+                { "score", 11 }
+            },
+            new BsonDocument
+            {
+                { "date", new DateTime(2014, 1, 6, 0, 0, 0, DateTimeKind.Utc) },
+                { "grade", "B" },
+                { "score", 17 }
+            }
+        }
+    },
+    { "name", "Vella" },
+    { "restaurant_id", "41704620" }
+};
+
+var collection = _database.GetCollection<BsonDocument>("restaurants");
+await collection.InsertOneAsync(document);
+---------------------------------------------------------
+
+
+
+
+
+
+3,find or query data
+---------------------------------------------------------
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using FluentAssertions;
+using MongoDB.Bson;
+
+//query for all document
+var collection = _database.GetCollection<BsonDocument>("restaurants");
+var filter = new BsonDocument();
+var count = 0;
+using (var cursor = await collection.FindAsync(filter))
+{
+    while (await cursor.MoveNextAsync())
+    {
+        var batch = cursor.Current;
+        foreach (var document in batch)
+        {
+            // process document
+            count++;
+        }
+    }
+}
+
+
+//query by a top level field
+var collection = _database.GetCollection<BsonDocument>("restaurants");
+var filter = Builders<BsonDocument>.Filter.Eq("borough", "Manhattan");
+var result = await collection.Find(filter).ToListAsync();
+
+//query by afield in an Embedded Document
+var collection = _database.GetCollection<BsonDocument>("restaurants");
+var filter = Builders<BsonDocument>.Filter.Eq("address.zipcode", "10075");
+var result = await collection.Find(filter).ToListAsync();
+
+
+//query by a field in an array
+var collection = _database.GetCollection<BsonDocument>("restaurants");
+var filter = Builders<BsonDocument>.Filter.Eq("grades.grade", "B");
+var result = await collection.Find(filter).ToListAsync();
+
+//greater than operator($gt)
+var collection = _database.GetCollection<BsonDocument>("restaurants");
+var filter = Builders<BsonDocument>.Filter.Gt("grades.score", 30);
+var result = await collection.Find(filter).ToListAsync();
+
+//less then operator($lt)
+var collection = _database.GetCollection<BsonDocument>("restaurants");
+var filter = Builders<BsonDocument>.Filter.Lt("grades.score", 10);
+var result = await collection.Find(filter).ToListAsync();
+
+//logical AND
+var collection = _database.GetCollection<BsonDocument>("restaurants");
+var builder = Builders<BsonDocument>.Filter;
+var filter = builder.Eq("cuisine", "Italian") & builder.Eq("address.zipcode", "10075");
+var result = await collection.Find(filter).ToListAsync();
+
+//logical OR
+var collection = _database.GetCollection<BsonDocument>("restaurants");
+var builder = Builders<BsonDocument>.Filter;
+var filter = builder.Eq("cuisine", "Italian") | builder.Eq("address.zipcode", "10075");
+var result = await collection.Find(filter).ToListAsync();
+
+//sort query results
+var collection = _database.GetCollection<BsonDocument>("restaurants");
+var filter = new BsonDocument();
+var sort = Builders<BsonDocument>.Sort.Ascending("borough").Ascending("address.zipcode");
+var result = await collection.Find(filter).Sort(sort).ToListAsync();
+
+---------------------------------------------------------
+
+
+
+
+
+
+3,update data
+---------------------------------------------------------
+using System.Threading.Tasks;
+using FluentAssertions;
+using MongoDB.Bson;
+using MongoDB.Driver.Core;
+
+//update top-level fields
+var collection = _database.GetCollection<BsonDocument>("restaurants");
+var filter = Builders<BsonDocument>.Filter.Eq("name", "Juni");
+var update = Builders<BsonDocument>.Update
+    .Set("cuisine", "American (New)")
+    .CurrentDate("lastModified");
+var result = await collection.UpdateOneAsync(filter, update);
+
+//update an embedded field
+var collection = _database.GetCollection<BsonDocument>("restaurants");
+var filter = Builders<BsonDocument>.Filter.Eq("restaurant_id", "41156888");
+var update = Builders<BsonDocument>.Update.Set("address.street", "East 31st Street");
+var result = await collection.UpdateOneAsync(filter, update);
+
+//update mulitple document
+var collection = _database.GetCollection<BsonDocument>("restaurants");
+var builder = Builders<BsonDocument>.Filter;
+var filter = builder.Eq("address.zipcode", "10016") & builder.Eq("cuisine", "Other");
+var update = Builders<BsonDocument>.Update
+    .Set("cuisine", "Category To Be Determined")
+    .CurrentDate("lastModified");
+var result = await collection.UpdateManyAsync(filter, update);
+---------------------------------------------------------
+
+
+
+4,remove data
+---------------------------------------------------------
+using System.Threading.Tasks;
+using FluentAssertions;
+using MongoDB.Bson;
+
+//remove all documents that match a condition
+var collection = _database.GetCollection<BsonDocument>("restaurants");
+var filter = Builders<BsonDocument>.Filter.Eq("borough", "Manhattan");
+var result = await collection.DeleteManyAsync(filter);
+
+//remove all document
+var collection = _database.GetCollection<BsonDocument>("restaurants");
+var filter = new BsonDocument();
+var result = await collection.DeleteManyAsync(filter);
+
+//drop a collection
+await _database.DropCollectionAsync("restaurants");
+using (var cursor = await _database.ListCollectionsAsync())
+{
+    var collections = await cursor.ToListAsync();
+    collections.Should().NotContain(document => document["name"] == "restaurants");
+}
+---------------------------------------------------------
+
+
+4,data aggregation
+---------------------------------------------------------
+using System.Threading.Tasks;
+using FluentAssertions;
+using MongoDB.Bson;
+
+//group document by a field and caculate count
+var collection = _database.GetCollection<BsonDocument>("restaurants");
+var aggregate = collection.Aggregate().Group(new BsonDocument { { "_id", "$borough" }, { "count", new BsonDocument("$sum", 1) } });
+var results = await aggregate.ToListAsync(); 
+ 
+
+//filter and group document
+var collection = _database.GetCollection<BsonDocument>("restaurants");
+var aggregate = collection.Aggregate()
+    .Match(new BsonDocument { { "borough", "Queens" }, { "cuisine", "Brazilian" } })
+    .Group(new BsonDocument { { "_id", "$address.zipcode" }, { "count", new BsonDocument("$sum", 1) } });
+var results = await aggregate.ToListAsync();
+
+
+
+---------------------------------------------------------
